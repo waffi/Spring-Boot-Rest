@@ -1,4 +1,4 @@
-package com.example.payroll;
+package com.example.company.controller;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,21 +18,26 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.company.exceptions.EmployeeNotFoundException;
+import com.example.company.model.Employee;
+import com.example.company.modelAssembler.EmployeeModelAssembler;
+import com.example.company.repositories.EmployeeRepository;
+
 @RestController
-class EmployeeController {
+public class EmployeeController {
 
   private final EmployeeRepository repository;
   
   private final EmployeeModelAssembler assembler;
 
-  EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
+  public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
 
     this.repository = repository;
     this.assembler = assembler;
   }
 
   @GetMapping("/employees")
-  ResponseEntity<?> getAll() {
+  public ResponseEntity<?> getAll() {
 
       List<EntityModel<Employee>> employees = repository.findAll().stream()		
           .map(assembler::toModel) // .map(employee -> assembler.toModel(employee))
@@ -45,7 +50,7 @@ class EmployeeController {
   }
 
   @GetMapping("/employees/{id}")
-  ResponseEntity<?> getById(@PathVariable Long id) {
+  public ResponseEntity<?> getById(@PathVariable Long id) {
 
 	  Employee employee = repository.findById(id) //
 	      .orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -56,7 +61,7 @@ class EmployeeController {
   }
   
   @PostMapping("/employees") 
-  ResponseEntity<?> create(@RequestBody Employee newEmployee) {
+  public ResponseEntity<?> create(@RequestBody Employee newEmployee) {
 	  EntityModel<Employee> entityModel = assembler.toModel(repository.save(newEmployee));
 
 	  return ResponseEntity //
@@ -65,7 +70,7 @@ class EmployeeController {
   }
 
   @PutMapping("/employees/{id}")
-  ResponseEntity<?> update(@RequestBody Employee newEmployee, @PathVariable Long id) {
+  public ResponseEntity<?> update(@RequestBody Employee newEmployee, @PathVariable Long id) {
     
 	  Employee updatedEmployee = repository.findById(id) //
 		      .map(employee -> {
@@ -83,7 +88,7 @@ class EmployeeController {
   }
 
   @DeleteMapping("/employees/{id}")
-  ResponseEntity<?> delete(@PathVariable Long id) {
+  public ResponseEntity<?> delete(@PathVariable Long id) {
 
 	  Employee employee = repository.findById(id) //
 	      .orElseThrow(() -> new EmployeeNotFoundException(id));
